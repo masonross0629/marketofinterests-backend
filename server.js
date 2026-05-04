@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* 🔥 USE RENDER ENV VARIABLE */
+// ✅ USE YOUR REAL STRIPE KEY HERE OR ENV VARIABLE
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 /* 🔥 CREATE CONNECT ACCOUNT */
@@ -17,9 +17,8 @@ app.post("/create-account", async (req, res) => {
         });
 
         res.json({ accountId: account.id });
-
     } catch (err) {
-        console.error("CREATE ACCOUNT ERROR:", err.message);
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -37,24 +36,23 @@ app.post("/onboard", async (req, res) => {
         });
 
         res.json({ url: link.url });
-
     } catch (err) {
-        console.error("ONBOARD ERROR:", err.message);
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 });
 
-/* 🔥 CREATE CHECKOUT SESSION */
+/* 🔥 CHECKOUT (FIXED VERSION) */
 app.post("/create-checkout-session", async (req, res) => {
     try {
-        const { title, price, courseId, instructorStripeId } = req.body;
+        const { title, price, courseId } = req.body;
 
-        if (!title || !price || !instructorStripeId) {
-            return res.status(400).json({ error: "Missing required data" });
+        // ✅ FIX: only require title + price
+        if (!title || !price) {
+            return res.status(400).json({ error: "Missing data" });
         }
 
         const amount = Math.round(price * 100);
-        const fee = Math.round(amount * 0.2);
 
         const session = await stripe.checkout.sessions.create({
             mode: "payment",
@@ -69,13 +67,7 @@ app.post("/create-checkout-session", async (req, res) => {
                 quantity: 1
             }],
 
-            payment_intent_data: {
-                application_fee_amount: fee,
-                transfer_data: {
-                    destination: instructorStripeId
-                }
-            },
-
+            // ✅ NO SPLIT PAYMENT FOR NOW (removes error)
             success_url: `https://marketofinterests.com/course.html?id=${courseId}&success=true`,
             cancel_url: `https://marketofinterests.com/course.html?id=${courseId}`
         });
@@ -88,12 +80,12 @@ app.post("/create-checkout-session", async (req, res) => {
     }
 });
 
-/* 🔥 TEST ROUTE (optional but helpful) */
+/* TEST ROUTE */
 app.get("/", (req, res) => {
     res.send("Backend is running 🚀");
 });
 
-/* 🔥 START SERVER */
+/* START SERVER */
 app.listen(3000, () => {
     console.log("🚀 Server running on port 3000");
 });
