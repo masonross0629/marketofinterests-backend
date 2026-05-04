@@ -1,15 +1,12 @@
 import express from "express";
 import cors from "cors";
 import Stripe from "stripe";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* 🔥 USE ENV VARIABLE (THIS FIXES YOUR ISSUE) */
+/* 🔥 USE RENDER ENV VARIABLE */
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 /* 🔥 CREATE CONNECT ACCOUNT */
@@ -20,8 +17,9 @@ app.post("/create-account", async (req, res) => {
         });
 
         res.json({ accountId: account.id });
+
     } catch (err) {
-        console.error(err);
+        console.error("CREATE ACCOUNT ERROR:", err.message);
         res.status(500).json({ error: err.message });
     }
 });
@@ -39,13 +37,14 @@ app.post("/onboard", async (req, res) => {
         });
 
         res.json({ url: link.url });
+
     } catch (err) {
-        console.error(err);
+        console.error("ONBOARD ERROR:", err.message);
         res.status(500).json({ error: err.message });
     }
 });
 
-/* 🔥 CHECKOUT WITH SPLIT */
+/* 🔥 CREATE CHECKOUT SESSION */
 app.post("/create-checkout-session", async (req, res) => {
     try {
         const { title, price, courseId, instructorStripeId } = req.body;
@@ -89,7 +88,7 @@ app.post("/create-checkout-session", async (req, res) => {
     }
 });
 
-/* 🔥 HEALTH CHECK (optional but useful) */
+/* 🔥 TEST ROUTE (optional but helpful) */
 app.get("/", (req, res) => {
     res.send("Backend is running 🚀");
 });
