@@ -7,8 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* STRIPE */
-
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 /* TEST ROUTE */
@@ -17,7 +15,7 @@ app.get("/", (req, res) => {
     res.send("Backend working 🚀");
 });
 
-/* CHECKOUT */
+/* CREATE CHECKOUT SESSION */
 
 app.post("/create-checkout-session", async (req, res) => {
 
