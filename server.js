@@ -7,9 +7,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+/* STRIPE */
+
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-/* CREATE CHECKOUT SESSION */
+/* TEST ROUTE */
+
+app.get("/", (req, res) => {
+    res.send("Backend working 🚀");
+});
+
+/* CHECKOUT */
 
 app.post("/create-checkout-session", async (req, res) => {
 
@@ -24,7 +32,7 @@ app.post("/create-checkout-session", async (req, res) => {
         if (!title || !price || !courseId) {
 
             return res.status(400).json({
-                error: "Missing required data"
+                error: "Missing data"
             });
 
         }
@@ -72,10 +80,7 @@ app.post("/create-checkout-session", async (req, res) => {
 
     } catch (err) {
 
-        console.error(
-            "STRIPE ERROR:",
-            err.message
-        );
+        console.error(err);
 
         res.status(500).json({
             error: err.message
@@ -85,25 +90,10 @@ app.post("/create-checkout-session", async (req, res) => {
 
 });
 
-/* TEST ROUTE */
-
-app.get("/", (req, res) => {
-
-    res.send(
-        "Market Of Interests backend running 🚀"
-    );
-
-});
-
 /* PORT */
 
-const PORT =
-process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-
-    console.log(
-        "Server running on port " + PORT
-    );
-
+    console.log(`Server running on port ${PORT}`);
 });
