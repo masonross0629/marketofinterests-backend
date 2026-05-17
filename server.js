@@ -65,7 +65,7 @@ app.post("/create-checkout-session", async (req, res) => {
             ],
 
             success_url:
-            `https://marketofinterests.com/my%20courses.html?success=true&courseId=${courseId}`,
+            `https://marketofinterests.com/my-courses.html?success=true&courseId=${courseId}`,
 
             cancel_url:
             `https://marketofinterests.com/course.html?id=${courseId}`,
